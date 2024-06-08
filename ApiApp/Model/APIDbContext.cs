@@ -12,7 +12,7 @@ namespace Internship.Model
 
         public APIDbContext()
         {
-            var path = "D:\\Internship2\\Database\\";
+            var path = "E:\\fac\\master\\Tec\\tec\\TEC-Internship-main\\Database";
             DbPath = System.IO.Path.Join(path, "Internship.db");
         }
 
