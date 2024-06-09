@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,19 +14,29 @@ namespace WebApp.Controllers
     {
         //HINT task 8 start
 
-/*        private readonly IConfiguration _config;
+        /*        private readonly IConfiguration _config;
+                private readonly string _api;
+                public PersonController(IConfiguration config)
+                {
+                    _config = config;
+                    _api = _config.GetValue<string>("");
+                }*/
+
+        //HINT task 8 end
+
+        private readonly IConfiguration _config;
         private readonly string _api;
+
         public PersonController(IConfiguration config)
         {
             _config = config;
-            _api = _config.GetValue<string>("");
-        }*/
+            _api = _config.GetValue<string>("ApiSettings:ApiUrl");
+        }
 
-        //HINT task 8 end
         public async Task<IActionResult> Index()
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage message = await client.GetAsync("http://localhost:5229/api/persons");
+            HttpResponseMessage message = await client.GetAsync($"{_api}/persons");
             if(message.IsSuccessStatusCode)
             {
                 var jstring = await message.Content.ReadAsStringAsync();
@@ -50,7 +61,7 @@ namespace WebApp.Controllers
                 HttpClient client = new HttpClient();
                 var jsonPerson = JsonConvert.SerializeObject(person);
                 StringContent content = new StringContent(jsonPerson, Encoding.UTF8, "application/json");
-                HttpResponseMessage message = await client.PostAsync("http://localhost:5229/api/persons", content);
+                HttpResponseMessage message = await client.PostAsync($"{_api}/persons", content);
 
                 if (message.IsSuccessStatusCode)
                 {
@@ -77,16 +88,16 @@ namespace WebApp.Controllers
         //    {
         //        HttpClient client = new HttpClient();
 
-        //        var positionResponse = await client.GetStringAsync($"http://localhost:5229/api/positions/{person.PositionId}");
+        //        var positionResponse = await client.GetStringAsync($"{_api}/positions/{person.PositionId}");
         //        var position = JsonConvert.DeserializeObject<Position>(positionResponse);
 
-        //        var salaryResponse = await client.GetStringAsync($"http://localhost:5229/api/salaries/{person.SalaryId}");
+        //        var salaryResponse = await client.GetStringAsync($"{_api}/salaries/{person.SalaryId}");
         //        var salary = JsonConvert.DeserializeObject<Salary>(salaryResponse);
 
         //        // Ensure position and department details are included
         //        if (position.Department == null)
         //        {
-        //            var departmentResponse = await client.GetStringAsync($"http://localhost:5229/api/departments/{position.DepartmentId}");
+        //            var departmentResponse = await client.GetStringAsync($"{_api}/departments/{position.DepartmentId}");
 
 
         //            var department = JsonConvert.DeserializeObject<Department>(departmentResponse);
@@ -109,7 +120,7 @@ namespace WebApp.Controllers
 
         //        var jsonPayload = JsonConvert.SerializeObject(requestPayload);
         //        StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        //        HttpResponseMessage message = await client.PostAsync("http://localhost:5229/api/persons", content);
+        //        HttpResponseMessage message = await client.PostAsync("$"{_api}/persons", content);
 
         //        if (message.IsSuccessStatusCode)
         //        { 
@@ -132,7 +143,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> Update(int Id)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage message = await client.GetAsync("http://localhost:5229/api/persons/" + Id);
+            HttpResponseMessage message = await client.GetAsync($"{_api}/persons/" + Id);
 
             if (message.IsSuccessStatusCode)
             {
@@ -152,7 +163,7 @@ namespace WebApp.Controllers
                 HttpClient client = new HttpClient();
                 var jsonPerson = JsonConvert.SerializeObject(person);
                 StringContent content = new StringContent(jsonPerson, Encoding.UTF8, "application/json");
-                HttpResponseMessage message = await client.PutAsync("http://localhost:5229/api/persons", content);
+                HttpResponseMessage message = await client.PutAsync($"{_api}/persons", content);
 
                 if(message.IsSuccessStatusCode)
                 {
@@ -175,7 +186,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> Delete(int Id)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage message = await client.DeleteAsync("http://localhost:5229/api/Persons/" + Id);
+            HttpResponseMessage message = await client.DeleteAsync($"{_api}/Persons/" + Id);
             if (message.IsSuccessStatusCode)
                 return RedirectToAction("Index");
             else

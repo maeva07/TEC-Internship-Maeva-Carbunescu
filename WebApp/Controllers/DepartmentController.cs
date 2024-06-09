@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -10,11 +12,21 @@ namespace WebApp.Controllers
 {
     public class DepartmentController : Controller
     {
+
+        private readonly IConfiguration _config;
+        private readonly string _api;
+
+        public DepartmentController(IConfiguration config)
+        {
+            _config = config;
+            _api = _config.GetValue<string>("ApiSettings:ApiUrl");
+        }
+
         public async Task<IActionResult> Index()
         {
             List<Department> list = new List<Department>();
             HttpClient client = new HttpClient();
-            HttpResponseMessage responseMessage = await client.GetAsync("http://localhost:5229/api/departments");
+            HttpResponseMessage responseMessage = await client.GetAsync($"{_api}/departments");
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -40,7 +52,7 @@ namespace WebApp.Controllers
                 HttpClient client = new HttpClient();
                 var jsondepartment = JsonConvert.SerializeObject(department);
                 StringContent content = new StringContent(jsondepartment, Encoding.UTF8, "application/json");
-                HttpResponseMessage message = await client.PostAsync("http://localhost:5229/api/departments", content);
+                HttpResponseMessage message = await client.PostAsync($"{_api}/departments", content);
 
                 if (message.IsSuccessStatusCode)
                 {
@@ -62,7 +74,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> Update(int Id)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage message = await client.GetAsync("http://localhost:5229/api/departments/" + Id);
+            HttpResponseMessage message = await client.GetAsync($"{_api}/departments/" + Id);
 
             if(message.IsSuccessStatusCode)
             {
@@ -98,7 +110,7 @@ namespace WebApp.Controllers
         public async Task<IActionResult> Delete(int Id)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage message = await client.DeleteAsync("http://localhost:5229/api/departments/" + Id);
+            HttpResponseMessage message = await client.DeleteAsync($"{_api}/departments/" + Id);
             if (message.IsSuccessStatusCode)
                 return RedirectToAction("Index");
             else
