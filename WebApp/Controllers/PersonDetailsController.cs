@@ -11,7 +11,6 @@ namespace WebApp.Controllers
 {
     public class PersonDetailsController : Controller
     {
-
         private readonly IConfiguration _config;
         private readonly string _api;
 
@@ -111,6 +110,7 @@ namespace WebApp.Controllers
             else
                 return View(personDetails);
         }
+
         public async Task<IActionResult> Delete(int Id)
         {
             HttpClient client = new HttpClient();
@@ -120,6 +120,5 @@ namespace WebApp.Controllers
             else
                 return View();
         }
-
     }
 }

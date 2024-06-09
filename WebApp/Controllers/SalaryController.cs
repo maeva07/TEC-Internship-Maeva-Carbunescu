@@ -59,7 +59,6 @@ namespace WebApp.Controllers
                     ModelState.AddModelError("", "There is an API Error");
                     return View(salary);
                 }
-
             }
             else
             {
@@ -79,7 +78,12 @@ namespace WebApp.Controllers
                 return View(salary);
             }
             else
+            {
+                var errorResponse = await message.Content.ReadAsStringAsync();
+                ModelState.AddModelError("", $"There is an API error: {message.ReasonPhrase} - {errorResponse}");
                 return RedirectToAction("Add");
+
+            }
         }
 
         [HttpPost]
@@ -111,7 +115,6 @@ namespace WebApp.Controllers
                 return RedirectToAction("Index");
             else
                 return View();
-
         }
     }
 }

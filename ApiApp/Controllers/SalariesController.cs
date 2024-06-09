@@ -40,8 +40,6 @@ namespace Internship.Controllers
                 return BadRequest();
         }
 
-
-
         [HttpPut]
         public IActionResult Update(Salary salary)
         {

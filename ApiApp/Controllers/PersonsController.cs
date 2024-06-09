@@ -51,8 +51,11 @@ namespace Internship.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdatePerson(Person person)
+        public IActionResult Update(int id, Person person)
         {
+            if (id != person.Id)
+                return BadRequest();
+
             if (ModelState.IsValid)
             {
                 var db = new APIDbContext();

@@ -12,18 +12,6 @@ namespace WebApp.Controllers
 {
     public class PersonController : Controller
     {
-        //HINT task 8 start
-
-        /*        private readonly IConfiguration _config;
-                private readonly string _api;
-                public PersonController(IConfiguration config)
-                {
-                    _config = config;
-                    _api = _config.GetValue<string>("");
-                }*/
-
-        //HINT task 8 end
-
         private readonly IConfiguration _config;
         private readonly string _api;
 
@@ -37,6 +25,7 @@ namespace WebApp.Controllers
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage message = await client.GetAsync($"{_api}/persons");
+
             if(message.IsSuccessStatusCode)
             {
                 var jstring = await message.Content.ReadAsStringAsync();
@@ -52,15 +41,47 @@ namespace WebApp.Controllers
             Person person = new Person();
             return View(person);
         }
-
+    
         [HttpPost]
         public async Task<IActionResult> Add(Person person)
         {
             if (ModelState.IsValid)
             {
                 HttpClient client = new HttpClient();
-                var jsonPerson = JsonConvert.SerializeObject(person);
-                StringContent content = new StringContent(jsonPerson, Encoding.UTF8, "application/json");
+
+                var positionResponse = await client.GetStringAsync($"{_api}/positions/{person.PositionId}");
+                var position = JsonConvert.DeserializeObject<Position>(positionResponse);
+
+                var salaryResponse = await client.GetStringAsync($"{_api}/salaries/{person.SalaryId}");
+                var salary = JsonConvert.DeserializeObject<Salary>(salaryResponse);
+
+                // Ensure position and department details are included
+                if (position.Department == null)
+                {
+                    var departmentResponse = await client.GetStringAsync($"{_api}/departments/{position.DepartmentId}");
+
+
+                    var department = JsonConvert.DeserializeObject<Department>(departmentResponse);
+                    position.Department = new Department { DepartmentName = department.DepartmentName };
+                }
+
+                var requestPayload = new
+                {
+                    person.Id,
+                    person.Name,
+                    person.Surname,
+                    person.Age,
+                    person.Email,
+                    person.Address,
+                    person.PositionId,
+                    Position = position,
+                    person.SalaryId,
+                    Salary = salary
+                };
+
+                var jsonPayload = JsonConvert.SerializeObject(requestPayload);
+                StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+                
                 HttpResponseMessage message = await client.PostAsync($"{_api}/persons", content);
 
                 if (message.IsSuccessStatusCode)
@@ -73,72 +94,12 @@ namespace WebApp.Controllers
                     ModelState.AddModelError("", $"There is an API error: {message.ReasonPhrase} - {errorResponse}");
                     return View(person);
                 }
-
             }
             else
             {
                 return View(person);
             }
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> Add(Person person)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        HttpClient client = new HttpClient();
-
-        //        var positionResponse = await client.GetStringAsync($"{_api}/positions/{person.PositionId}");
-        //        var position = JsonConvert.DeserializeObject<Position>(positionResponse);
-
-        //        var salaryResponse = await client.GetStringAsync($"{_api}/salaries/{person.SalaryId}");
-        //        var salary = JsonConvert.DeserializeObject<Salary>(salaryResponse);
-
-        //        // Ensure position and department details are included
-        //        if (position.Department == null)
-        //        {
-        //            var departmentResponse = await client.GetStringAsync($"{_api}/departments/{position.DepartmentId}");
-
-
-        //            var department = JsonConvert.DeserializeObject<Department>(departmentResponse);
-        //            position.Department = new Department { DepartmentName = department.DepartmentName };
-        //        }
-
-        //        var requestPayload = new
-        //        {
-        //            person.Id,
-        //            person.Name,
-        //            person.Surname,
-        //            person.Age,
-        //            person.Email,
-        //            person.Address,
-        //            person.PositionId,
-        //            Position = position,
-        //            person.SalaryId,
-        //            Salary = salary
-        //        };
-
-        //        var jsonPayload = JsonConvert.SerializeObject(requestPayload);
-        //        StringContent content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-        //        HttpResponseMessage message = await client.PostAsync("$"{_api}/persons", content);
-
-        //        if (message.IsSuccessStatusCode)
-        //        { 
-        //            return RedirectToAction("Index");
-        //        }
-        //        else
-        //        {
-        //            var errorResponse = await message.Content.ReadAsStringAsync();
-        //            ModelState.AddModelError("", $"There is an API error: {message.ReasonPhrase} - {errorResponse}");
-        //            return View(person);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return View(person);
-        //    }
-        //}
-
 
         public async Task<IActionResult> Update(int Id)
         {

@@ -27,7 +27,7 @@ namespace Internship.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddDepartment(Department department)
+        public IActionResult Add(Department department)
         {
             if (ModelState.IsValid)
             {
@@ -42,7 +42,7 @@ namespace Internship.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateDepartment(Department department)
+        public IActionResult Update(Department department)
         {
 
             if (ModelState.IsValid)

@@ -7,6 +7,13 @@ namespace ApiApp.Controllers
     [ApiController]
     public class PositionsController : ControllerBase
     {
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var db = new APIDbContext();
+            var list = db.Positions.ToList();
+            return Ok(list);
+        }
 
         [HttpGet("{Id}")]
         public IActionResult Get(int Id)
