@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -94,7 +93,7 @@ namespace WebApp.Controllers
                 HttpClient client = new HttpClient();
                 var jsondepartment = JsonConvert.SerializeObject(department);
                 StringContent content = new StringContent(jsondepartment,Encoding.UTF8,"application/json");
-                HttpResponseMessage message = await client.PutAsync("http://localhost:5229/api/departments", content);
+                HttpResponseMessage message = await client.PutAsync($"{_api}/departments", content);
 
                 if (message.IsSuccessStatusCode)
                 {
