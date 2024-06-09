@@ -1,6 +1,5 @@
 ﻿using Internship.Model;
 using Internship.ObjectModel;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
 
@@ -36,8 +35,9 @@ namespace Internship.Controllers
                 return Ok(person);
 
         }
+
         [HttpPost]
-        public IActionResult Post(Person person)
+        public IActionResult Add(Person person)
         {
             if (ModelState.IsValid)
             {
@@ -47,16 +47,17 @@ namespace Internship.Controllers
                 return Created("", person);
             }
             else
-                return BadRequest();
+                return BadRequest(ModelState);
         }
+
         [HttpPut]
         public IActionResult UpdatePerson(Person person)
         {
-
             if (ModelState.IsValid)
             {
                 var db = new APIDbContext();
                 Person updateperson = db.Persons.Find(person.Id);
+
                 updateperson.Address = person.Address;
                 updateperson.Age = person.Age;
                 updateperson.Email = person.Email;
@@ -69,6 +70,22 @@ namespace Internship.Controllers
             }
             else
                 return BadRequest();
+        }
+
+        [HttpDelete("{Id}")]
+        public IActionResult Delete(int Id)
+        {
+            var db = new APIDbContext();
+            Person deletePerson = db.Persons.Find(Id);
+
+            if (deletePerson == null)
+                return NotFound();
+            else
+            {
+                db.Persons.Remove(deletePerson);
+                db.SaveChanges();
+                return NoContent();
+            }
         }
     }
 }

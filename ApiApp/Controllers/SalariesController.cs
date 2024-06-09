@@ -1,9 +1,5 @@
 ﻿using Internship.Model;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Internship.Controllers
 {
@@ -17,6 +13,48 @@ namespace Internship.Controllers
             var db = new APIDbContext();
             var list = db.Salaries.ToList();
             return Ok(list);
+        }
+
+        [HttpGet("{Id}")]
+        public IActionResult Get(int Id)
+        {
+            var db = new APIDbContext();
+            Salary salary = db.Salaries.FirstOrDefault(x => x.SalaryId == Id);
+            if (salary == null)
+                return NotFound();
+            else
+                return Ok(salary);
+        }
+
+        [HttpPost]
+        public IActionResult Post(Salary salary)
+        {
+            if (ModelState.IsValid)
+            {
+                var db = new APIDbContext();
+                db.Salaries.Add(salary);
+                db.SaveChanges();
+                return Created("", salary);
+            }
+            else
+                return BadRequest();
+        }
+
+
+
+        [HttpPut]
+        public IActionResult Update(Salary salary)
+        {
+            if (ModelState.IsValid)
+            {
+                var db = new APIDbContext();
+                Salary updateSalary = db.Salaries.Find(salary.SalaryId);
+                updateSalary.Amount = salary.Amount;
+                db.SaveChanges();
+                return NoContent();
+            }
+            else
+                return BadRequest();
         }
 
         [HttpDelete("{Id}")]

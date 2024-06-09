@@ -1,5 +1,4 @@
 ﻿using Internship.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Internship.Controllers
@@ -41,6 +40,7 @@ namespace Internship.Controllers
                 return BadRequest();
 
         }
+
         [HttpPut]
         public IActionResult UpdateDepartment(Department department)
         {
@@ -55,6 +55,21 @@ namespace Internship.Controllers
             }
             else
                 return BadRequest();
+        }
+
+        [HttpDelete("{Id}")]
+        public IActionResult Delete(int Id)
+        {
+            var db = new APIDbContext();
+            Department deparment = db.Departments.Find(Id);
+            if (deparment == null)
+                return NotFound();
+            else
+            {
+                db.Departments.Remove(deparment);
+                db.SaveChanges();
+                return NoContent();
+            }
         }
     }
 }

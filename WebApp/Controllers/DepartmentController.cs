@@ -1,13 +1,10 @@
-﻿using WebApp.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
+using WebApp.Models;
 
 namespace WebApp.Controllers
 {
@@ -28,11 +25,13 @@ namespace WebApp.Controllers
             else
                 return View(list);
         }
+
         public IActionResult Add()
         {
             Department department = new Department();
             return View(department);
         }
+
         [HttpPost]
         public async Task<IActionResult> Add(Department department)
         {
@@ -42,6 +41,7 @@ namespace WebApp.Controllers
                 var jsondepartment = JsonConvert.SerializeObject(department);
                 StringContent content = new StringContent(jsondepartment, Encoding.UTF8, "application/json");
                 HttpResponseMessage message = await client.PostAsync("http://localhost:5229/api/departments", content);
+
                 if (message.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Index");
@@ -63,6 +63,7 @@ namespace WebApp.Controllers
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage message = await client.GetAsync("http://localhost:5229/api/departments/" + Id);
+
             if(message.IsSuccessStatusCode)
             {
                 var jstring = await message.Content.ReadAsStringAsync();
@@ -72,6 +73,7 @@ namespace WebApp.Controllers
             else
             return RedirectToAction("Add");
         }
+
         [HttpPost]
         public async Task<IActionResult> Update(Department department)
         {
@@ -81,6 +83,7 @@ namespace WebApp.Controllers
                 var jsondepartment = JsonConvert.SerializeObject(department);
                 StringContent content = new StringContent(jsondepartment,Encoding.UTF8,"application/json");
                 HttpResponseMessage message = await client.PutAsync("http://localhost:5229/api/departments", content);
+
                 if (message.IsSuccessStatusCode)
                 {
                     return RedirectToAction("Index");
@@ -92,5 +95,14 @@ namespace WebApp.Controllers
                 return View(department);
         }
 
+        public async Task<IActionResult> Delete(int Id)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage message = await client.DeleteAsync("http://localhost:5229/api/departments/" + Id);
+            if (message.IsSuccessStatusCode)
+                return RedirectToAction("Index");
+            else
+                return View();
+        }
     }
 }
